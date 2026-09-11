@@ -22,9 +22,5 @@
     "url": "git+https://github.com/jamieomaguire/intervals.git"
   },
   "author": "Jamie Maguire",
-  "license": "ISC",
-  "volta": {
-    "node": "18.12.0",
-    "yarn": "1.22.19"
-  }
+  "license": "ISC"
 }

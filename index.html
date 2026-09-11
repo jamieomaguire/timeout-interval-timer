@@ -99,6 +99,12 @@
               <input type="number" name="rounds" id="rounds" min="1" placeholder="Total interval loops in the set">
             </label>
           </fieldset>
+          <fieldset class="c-formField c-formField--skipFinalInterval">
+            <label for="skipFinalInterval" class="c-formField-checkboxContainer">
+              <input type="checkbox" name="skipFinalInterval" id="skipFinalInterval">
+              <span class="c-formField-label">Skip last interval on final round</span>
+            </label>
+          </fieldset>
         </div>
 
         <!-- Container to hold interval input fields -->
@@ -219,6 +225,7 @@
           <li>Find the field labeled <code>Rounds:</code>.</li>
           <li>Input the number of rounds you'd like to complete per set.</li>
         </ol>
+        <p>Enable <code>Skip last interval on final round</code> to omit the final interval of each set after its last round. The timer then continues with its normal next step, such as rest between sets or the next set.</p>
 
         <h3>Setting up Intervals</h3>
         <ol>

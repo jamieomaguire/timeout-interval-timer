@@ -15,6 +15,7 @@ export class Timer {
     this.currentSet = 1;
     this.restBetweenSetsDuration = 0;
     this.inRestBetweenSets = false;
+    this.skipFinalInterval = false;
     this.x = 0;
     this.y = 0;
     this.muted = false;
@@ -165,6 +166,70 @@ export class Timer {
     }
   }
 
+  shouldSkipCurrentInterval() {
+    return this.skipFinalInterval &&
+      this.currentRound === this.rounds &&
+      this.currentIntervalIndex === this.intervals.length - 1;
+  }
+
+  advanceToNextInterval(currentTime) {
+    this.currentIntervalIndex++;
+
+    if (this.shouldSkipCurrentInterval()) {
+      this.currentIntervalIndex++;
+    }
+
+    while (this.currentIntervalIndex >= this.intervals.length) {
+      this.currentRound++;
+
+      if (this.currentRound > this.rounds) {
+        this.currentSet++;
+        this.currentRound = 1;
+
+        if (this.currentSet > this.sets) {
+          this.timerStopped = true;
+          this.startTime = null;
+          this.elapsed = null;
+          this.currentIntervalIndex = 0;
+          this.currentRound = 1;
+          this.inCountdown = false;
+          this.currentSet = 1;
+          this.inRestBetweenSets = false;
+          this.canvas.style.backgroundColor = this.defaultCanvasColor;
+          this.drawTime(0, '', false);
+          return false;
+        }
+
+        if (this.restBetweenSetsDuration > 0) {
+          this.inRestBetweenSets = true;
+          this.canvas.style.backgroundColor = '#bbb';
+          this.startTime = null;
+          this.elapsed = 0;
+          requestAnimationFrame(this.animate.bind(this));
+          return false;
+        }
+      }
+
+      this.currentIntervalIndex = 0;
+
+      if (this.shouldSkipCurrentInterval()) {
+        this.currentIntervalIndex++;
+      }
+    }
+
+    const currentInterval = this.intervals[this.currentIntervalIndex];
+    this.canvas.style.backgroundColor = currentInterval.color;
+    this.startTime = null;
+    this.elapsed = 0;
+    return true;
+  }
+
+  skipCurrentInterval(currentTime) {
+    if (this.advanceToNextInterval(currentTime)) {
+      requestAnimationFrame(this.animate.bind(this));
+    }
+  }
+
   animate(currentTime) {
     if (!this.startTime) {
       this.startTime = currentTime;
@@ -177,9 +242,13 @@ export class Timer {
       if (remainingTime <= 0) {
         this.playAudio();
         this.inCountdown = false;
+        if (this.shouldSkipCurrentInterval()) {
+          this.skipCurrentInterval(currentTime);
+          return;
+        }
         this.canvas.style.backgroundColor = this.intervals[0].color;
         this.startTime = null;
-        this.animate(currentTime);
+        requestAnimationFrame(this.animate.bind(this));
         return;
       }
       this.drawTime(remainingTime, '', false);
@@ -189,9 +258,13 @@ export class Timer {
         this.playAudio();
         this.inRestBetweenSets = false;
         this.currentIntervalIndex = 0;  // Reset the interval index
-        this.canvas.style.backgroundColor = this.intervals[0].color;
         this.startTime = null;
-        this.animate(currentTime);
+        if (this.shouldSkipCurrentInterval()) {
+          this.skipCurrentInterval(currentTime);
+          return;
+        }
+        this.canvas.style.backgroundColor = this.intervals[0].color;
+        requestAnimationFrame(this.animate.bind(this));
         return;
       }
       this.drawTime(remainingRestTime, "Resting", true);
@@ -202,49 +275,11 @@ export class Timer {
 
       if (remainingTime <= 0) {
         this.playAudio();
-        this.currentIntervalIndex++;
-
-        if (this.currentIntervalIndex >= this.intervals.length) {
-          this.currentRound++;
-
-          if (this.currentRound > this.rounds) {
-            this.currentSet++;
-            this.currentRound = 1;
-
-            if (this.currentSet > this.sets) {
-              this.timerStopped = true;
-
-              this.startTime = null;
-              this.elapsed = null;
-              this.timerStopped = true;
-              this.currentIntervalIndex = 0;
-              this.currentRound = 1;
-              this.inCountdown = false;
-              this.currentSet = 1;
-              this.inRestBetweenSets = false;
-
-              this.canvas.style.backgroundColor = this.defaultCanvasColor;
-              this.drawTime(0, '', false);
-              return;
-            }
-
-            if (this.restBetweenSetsDuration > 0) {
-              this.inRestBetweenSets = true;
-              this.canvas.style.backgroundColor = '#bbb'; // Or any color to indicate rest
-              this.startTime = null;
-              this.elapsed = 0;
-              this.animate(currentTime);
-              return;
-            }
-          }
-
-          this.currentIntervalIndex = 0;
+        if (!this.advanceToNextInterval(currentTime)) {
+          return;
         }
 
         currentInterval = this.intervals[this.currentIntervalIndex];
-        this.canvas.style.backgroundColor = currentInterval.color;
-        this.startTime = null;
-        this.elapsed = 0;
         remainingTime = currentInterval.duration;
       }
 
@@ -291,6 +326,7 @@ export class Timer {
       this.countdownDuration = this.configManager.capturedCountdownDuration;
       this.sets = this.configManager.capturedSets;
       this.restBetweenSetsDuration = this.configManager.capturedRestBetweenSetsDuration;
+      this.skipFinalInterval = this.configManager.capturedSkipFinalInterval;
 
       if (this.timerStopped && this.intervals.length > 0) {
         this.timerStopped = false;
@@ -299,6 +335,10 @@ export class Timer {
         if (this.countdownDuration > 0) {
           this.inCountdown = true;
         } else {
+          if (this.shouldSkipCurrentInterval()) {
+            requestAnimationFrame(this.skipCurrentInterval.bind(this));
+            return;
+          }
           this.canvas.style.backgroundColor = this.intervals[0].color;
         }
         this.startTime = null;
@@ -365,4 +405,3 @@ export class Timer {
     }
   }
 }
-

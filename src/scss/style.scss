@@ -443,7 +443,8 @@ footer {
   grid-template-areas:
     "countdown countdown"
     "sets setrest"
-    "rounds rounds";
+    "rounds rounds"
+    "skipFinalInterval skipFinalInterval";
   grid-template-columns: minmax(120px, min-content) 1fr;
 }
 
@@ -470,6 +471,18 @@ footer {
 
     &:focus-within {
       outline: 1px solid blue;
+    }
+
+    .c-formField-checkboxContainer {
+      padding: 0.8em 1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
     }
 
     &:hover {
@@ -595,6 +608,11 @@ footer {
 
 .c-formField--rounds {
   grid-area: rounds;
+  border-bottom: 1px solid #ccc;
+}
+
+.c-formField--skipFinalInterval {
+  grid-area: skipFinalInterval;
   border-bottom: 1px solid #ccc;
 }
 
