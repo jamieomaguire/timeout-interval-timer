@@ -205,7 +205,7 @@ export class Timer {
           this.canvas.style.backgroundColor = '#bbb';
           this.startTime = null;
           this.elapsed = 0;
-          this.animate(currentTime);
+          requestAnimationFrame(this.animate.bind(this));
           return false;
         }
       }
@@ -226,7 +226,7 @@ export class Timer {
 
   skipCurrentInterval(currentTime) {
     if (this.advanceToNextInterval(currentTime)) {
-      this.animate(currentTime);
+      requestAnimationFrame(this.animate.bind(this));
     }
   }
 
@@ -248,7 +248,7 @@ export class Timer {
         }
         this.canvas.style.backgroundColor = this.intervals[0].color;
         this.startTime = null;
-        this.animate(currentTime);
+        requestAnimationFrame(this.animate.bind(this));
         return;
       }
       this.drawTime(remainingTime, '', false);
@@ -264,7 +264,7 @@ export class Timer {
           return;
         }
         this.canvas.style.backgroundColor = this.intervals[0].color;
-        this.animate(currentTime);
+        requestAnimationFrame(this.animate.bind(this));
         return;
       }
       this.drawTime(remainingRestTime, "Resting", true);
