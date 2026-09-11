@@ -8,6 +8,7 @@ export class ConfigManager {
     this.countdownDuration = 0;
     this.sets = 1;
     this.restBetweenSetsDuration = 0;
+    this.skipFinalInterval = false;
   }
 
   get successColour() {
@@ -36,6 +37,7 @@ export class ConfigManager {
     this.restBetweenSetsDuration = parseInt(document.getElementById('restBetweenSets').value) * 1000;
     this.countdownDuration = parseInt(document.getElementById('countdown').value) * 1000;
     this.rounds = parseInt(document.getElementById('rounds').value) || 1;
+    this.skipFinalInterval = document.getElementById('skipFinalInterval').checked;
   }
 
   addInterval() {
@@ -77,7 +79,8 @@ export class ConfigManager {
         rounds: this.rounds,
         countdownDuration: this.countdownDuration,
         sets: this.sets,
-        restBetweenSetsDuration: this.restBetweenSetsDuration
+        restBetweenSetsDuration: this.restBetweenSetsDuration,
+        skipFinalInterval: this.skipFinalInterval
       };
 
       const serialized = JSON.stringify(settings);
@@ -141,6 +144,7 @@ export class ConfigManager {
       this.countdownDuration = data.countdownDuration;
       this.sets = data.sets;
       this.restBetweenSetsDuration = data.restBetweenSetsDuration;
+      this.skipFinalInterval = data.skipFinalInterval === true;
       this.populateFields();
       document.getElementById('output').classList.remove('output--error');
       document.getElementById('output').innerHTML = 'Timer loaded from URL. (See "Customise timer" for settings)';
@@ -191,6 +195,7 @@ export class ConfigManager {
     document.getElementById('rounds').value = this.rounds;
     document.getElementById('sets').value = this.sets;
     document.getElementById('restBetweenSets').value = this.restBetweenSetsDuration / 1000;
+    document.getElementById('skipFinalInterval').checked = this.skipFinalInterval;
 
     const container = document.getElementById('intervalContainer');
     container.innerHTML = '';
@@ -236,5 +241,9 @@ export class ConfigManager {
 
   get capturedRestBetweenSetsDuration() {
     return this.restBetweenSetsDuration;
+  }
+
+  get capturedSkipFinalInterval() {
+    return this.skipFinalInterval;
   }
 }

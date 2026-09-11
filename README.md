@@ -8,6 +8,8 @@ Each set has:
 
 - A defined number of rounds.
 - A collection of intervals that define the structure of each round.
+- An optional setting to skip the final interval of its final round. When enabled, the timer proceeds to the normal next step, such as rest between sets or the next set.
+
 ### 2. Rounds:
 A round is a collection of intervals. Each round is a repeat of the intervals in the order they were defined. After completing all intervals in a round, the next round starts. After all rounds (as defined in the set) are completed, the set ends and either moves to the next set or initiates a rest period (if defined).
 
