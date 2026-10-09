@@ -119,13 +119,16 @@ export class Timer {
   }
 
   drawTime(time, intervalName = '', displayRound = true) {
-    this.lastDrawArgs = [time, intervalName, displayRound];
+    // A non-finite duration would paint the literal text "NaN:NaN.Na"
+    const safeTime = Number.isFinite(time) ? time : 0;
+
+    this.lastDrawArgs = [safeTime, intervalName, displayRound];
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const minutes = Math.floor(time / 60000);
-    const seconds = Math.floor((time % 60000) / 1000);
-    const milliseconds = time % 1000;
+    const minutes = Math.floor(safeTime / 60000);
+    const seconds = Math.floor((safeTime % 60000) / 1000);
+    const milliseconds = safeTime % 1000;
 
     const minutesText = `${minutes.toString().padStart(2, '0')}:`;
     const secondsText = `${seconds.toString().padStart(2, '0')}.`;
@@ -289,9 +292,23 @@ export class Timer {
 
   startTimer() {
     if (this.timerStopped) {
-      this.requestWakeLock();
       // Capture the latest form input values
       this.configManager.captureInputs();
+
+      this.intervals = this.configManager.capturedIntervals;
+      const outputEl = document.getElementById('output');
+
+      // Bail before any side effects (wake lock, audio) so a failed start leaves nothing behind
+      if (!this.intervals.length) {
+        outputEl.innerHTML = 'Please create a timer first';
+        outputEl.classList.add('output--error');
+
+        return;
+      }
+
+      outputEl.innerHTML = '';
+
+      this.requestWakeLock();
 
       if (!this.audio) {
         this.audio = new Audio('./timer.mp3');
@@ -299,44 +316,24 @@ export class Timer {
         this.audio.preload = 'auto';
       }
 
-      this.currentIntervalIndex = 0;
-      this.currentRound = 1;
-      this.startTime = null;
-      this.elapsed = null;
-
-      this.intervals = this.configManager.capturedIntervals;
-      const outputEl = document.getElementById('output');
-
-      if (!this.intervals.length) {
-        outputEl.innerHTML = 'Please create a timer first';
-        outputEl.classList.add('output--error');
-
-        return;
-      } else {
-        outputEl.innerHTML = '';
-      }
-
       this.rounds = this.configManager.capturedRounds;
       this.countdownDuration = this.configManager.capturedCountdownDuration;
       this.sets = this.configManager.capturedSets;
       this.restBetweenSetsDuration = this.configManager.capturedRestBetweenSetsDuration;
 
-      if (this.timerStopped && this.intervals.length > 0) {
-        this.timerStopped = false;
-        this.currentIntervalIndex = 0;
-        this.currentRound = 1;
-        if (this.countdownDuration > 0) {
-          this.inCountdown = true;
-        } else {
-          this.canvas.style.backgroundColor = this.intervals[0].color;
-        }
-        this.startTime = null;
-        this.elapsed = null;
-        this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
-        this.emitState();
+      this.timerStopped = false;
+      this.currentIntervalIndex = 0;
+      this.currentRound = 1;
+      if (this.countdownDuration > 0) {
+        this.inCountdown = true;
+      } else {
+        this.canvas.style.backgroundColor = this.intervals[0].color;
       }
+      this.startTime = null;
+      this.elapsed = null;
+      this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
+      this.emitState();
     }
-
   }
 
   resetState() {

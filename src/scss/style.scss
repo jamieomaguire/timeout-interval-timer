@@ -143,9 +143,10 @@ header img {
     'start stop'
     'mute mute';
   grid-template-rows: 1fr min-content;
-  grid-template-columns: min-content min-content;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1em;
-  justify-content: center;
+  width: fit-content;
+  margin-inline: auto;
 }
 
 .timer__canvas {

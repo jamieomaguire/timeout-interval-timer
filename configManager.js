@@ -33,8 +33,8 @@ export class ConfigManager {
     });
 
     this.sets = parseInt(document.getElementById('sets').value) || 1;
-    this.restBetweenSetsDuration = parseInt(document.getElementById('restBetweenSets').value) * 1000;
-    this.countdownDuration = parseInt(document.getElementById('countdown').value) * 1000;
+    this.restBetweenSetsDuration = (parseInt(document.getElementById('restBetweenSets').value) || 0) * 1000;
+    this.countdownDuration = (parseInt(document.getElementById('countdown').value) || 0) * 1000;
     this.rounds = parseInt(document.getElementById('rounds').value) || 1;
   }
 
