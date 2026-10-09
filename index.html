@@ -25,7 +25,7 @@
     <!-- Timer -->
     <div class="timer">
       <canvas class="timer__canvas" id="timerCanvas"></canvas>
-      <button class="timer__start btn btn--icon" id="startTimer">
+      <button class="timer__start btn btn--icon" id="startTimer" aria-label="Start timer" data-state="idle">
         <svg viewBox="-3 0 28 28" xmlns="http://www.w3.org/2000/svg">
           <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
             <g id="Icon-Set-Filled" transform="translate(-419 -571)" fill="#000">
@@ -192,6 +192,9 @@
           <li><strong>Starting the Timer</strong>: Click on the <code>Start</code> button to begin the timer based on
             the
             intervals and settings you've set up.</li>
+          <li><strong>Pausing and Resuming</strong>: Once running, that same button becomes
+            <code>Pause</code>. Pausing freezes the timer but keeps your place &mdash; the current interval, round and
+            set, and the exact time remaining. Click <code>Resume</code> to carry on from where you left off.</li>
           <li><strong>Stopping the Timer</strong>: Click on the <code>Stop</code> button to halt the timer, resetting it
             to its initial state.</li>
         </ul>

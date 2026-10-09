@@ -23,7 +23,43 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('createURL').addEventListener('click', configManager.saveToURL.bind(configManager));
 
   // Event listeners for Timer
-  document.getElementById('startTimer').addEventListener('click', timer.startTimer.bind(timer));
+  const playIcon = `
+<svg viewBox="-3 0 28 28" xmlns="http://www.w3.org/2000/svg">
+  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="Icon-Set-Filled" transform="translate(-419 -571)" fill="#000">
+      <path d="m440.415 583.554-18.997-12.243c-1.127-.607-2.418-.544-2.418 1.635v24.108c0 1.992 1.385 2.306 2.418 1.635l18.997-12.243a2.076 2.076 0 0 0 0-2.892" id="play"/>
+    </g>
+  </g>
+</svg>`;
+
+  const pauseIcon = `
+<svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="Icon-Set-Filled" fill="#000">
+      <path d="M9 2H5a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Zm14 0h-4a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z" id="pause"/>
+    </g>
+  </g>
+</svg>`;
+
+  const startBtnStates = {
+    idle: { html: `${playIcon}\nStart`, label: 'Start timer' },
+    running: { html: `${pauseIcon}\nPause`, label: 'Pause timer' },
+    paused: { html: `${playIcon}\nResume`, label: 'Resume timer' },
+  };
+
+  const startBtn = document.getElementById('startTimer');
+  startBtn.addEventListener('click', timer.toggleTimer.bind(timer));
+
+  // The timer can also stop itself when the workout ends, so follow its state rather
+  // than flipping the button inside the click handler
+  document.documentElement.addEventListener('timerStateChange', (e) => {
+    const { html, label } = startBtnStates[e.detail.state] ?? startBtnStates.idle;
+
+    startBtn.innerHTML = html;
+    startBtn.setAttribute('aria-label', label);
+    startBtn.dataset.state = e.detail.state;
+  });
+
   document.getElementById('stopTimer').addEventListener('click', timer.stopTimer.bind(timer));
   const muteBtnCopy = `
 <svg viewBox="0 -3 30 30" xmlns="http://www.w3.org/2000/svg">
